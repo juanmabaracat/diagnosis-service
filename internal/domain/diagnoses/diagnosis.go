@@ -1,4 +1,4 @@
-package diagnosis
+package diagnoses
 
 import (
 	"github.com/google/uuid"
@@ -10,11 +10,5 @@ type Diagnosis struct {
 	Description  string
 	PatientID    uuid.UUID
 	CreatedAt    time.Time
-	Prescription *Prescription
-}
-
-type Prescription struct {
-	Description string
-	Medicine    string
-	Doses       string
+	Prescription *string
 }
