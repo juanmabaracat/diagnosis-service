@@ -10,7 +10,7 @@ import (
 )
 
 func Test_addPatientDiagnosisHandler_Handle(t *testing.T) {
-	patientID := uuid.MustParse("1510c7fc-1d4d-44a2-bdbc-a1a6754c7c86")
+	patientID := uuid.MustParse("11111111-1111-1111-1111-111111111111")
 
 	command := AddPatientDiagnosis{
 		PatientID:    patientID,
