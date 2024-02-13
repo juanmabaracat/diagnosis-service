@@ -31,6 +31,13 @@ type addPatientDiagnosisHandler struct {
 	diagnosisRepo diagnoses.Repository
 }
 
+func NewAddPatientDiagnosisHandler(patientRepo patients.Repository, diagnosisRepo diagnoses.Repository) AddPatientDiagnosisHandler {
+	return &addPatientDiagnosisHandler{
+		patientRepo:   patientRepo,
+		diagnosisRepo: diagnosisRepo,
+	}
+}
+
 func (h *addPatientDiagnosisHandler) Handle(command AddPatientDiagnosis) error {
 	patient, err := h.patientRepo.GetByID(command.PatientID)
 	if err != nil {
