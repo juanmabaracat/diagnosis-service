@@ -8,6 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/juanmabaracat/diagnosis-service/internal/app"
 	"github.com/juanmabaracat/diagnosis-service/internal/app/diagnoses/commands"
+	"github.com/juanmabaracat/diagnosis-service/internal/app/diagnoses/queries"
+	"github.com/juanmabaracat/diagnosis-service/internal/domain/diagnoses"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -122,4 +124,71 @@ func TestHandler_AddDiagnosis(t *testing.T) {
 		})
 	}
 
+}
+
+func TestHandler_GetDiagnoses(t *testing.T) {
+	tests := []struct {
+		name       string
+		queryParam string
+		handler    queries.GetDiagnosesHandler
+		wantStatus int
+	}{
+		{
+			name:       "return bad request when patient name is invalid",
+			queryParam: "patientName=",
+			handler: func() queries.GetDiagnosesHandler {
+				mock := &queries.MockGetDiagnoses{}
+				mock.On("Handle", queries.GetDiagnosesQuery{PatientName: ""}).
+					Return(([]*diagnoses.Diagnosis)(nil), commands.ErrGettingPatient)
+				return mock
+			}(),
+			wantStatus: 400,
+		},
+		{
+			name:       "return not found when the patient doesn't exists",
+			queryParam: "patientName=John Doe",
+			handler: func() queries.GetDiagnosesHandler {
+				mock := &queries.MockGetDiagnoses{}
+				mock.On("Handle", queries.GetDiagnosesQuery{PatientName: "John Doe"}).
+					Return(([]*diagnoses.Diagnosis)(nil), commands.ErrPatientNotFound)
+				return mock
+			}(),
+			wantStatus: 404,
+		},
+		{
+			name:       "return server error when there is an error getting the diagnoses",
+			queryParam: "patientName=John Doe",
+			handler: func() queries.GetDiagnosesHandler {
+				mock := &queries.MockGetDiagnoses{}
+				mock.On("Handle", queries.GetDiagnosesQuery{PatientName: "John Doe"}).
+					Return(([]*diagnoses.Diagnosis)(nil), commands.ErrGettingPatient)
+				return mock
+			}(),
+			wantStatus: 500,
+		},
+		{
+			name:       "return the diagnoses without error",
+			queryParam: "patientName=John Doe",
+			handler: func() queries.GetDiagnosesHandler {
+				mock := &queries.MockGetDiagnoses{}
+				mock.On("Handle", queries.GetDiagnosesQuery{PatientName: "John Doe"}).
+					Return([]*diagnoses.Diagnosis{}, nil)
+				return mock
+			}(),
+			wantStatus: 200,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := &Handler{
+				diagnosesServices: app.DiagnosisServices{
+					Queries: app.Queries{GetDiagnoses: tt.handler}},
+			}
+
+			req, _ := http.NewRequest("GET", "/patients/diagnoses?"+tt.queryParam, nil)
+			resp := httptest.NewRecorder()
+			h.GetDiagnoses(resp, req)
+			assert.Equal(t, tt.wantStatus, resp.Code)
+		})
+	}
 }

@@ -23,7 +23,7 @@ func Test_addPatientDiagnosisHandler_Handle(t *testing.T) {
 		patientRepo   patients.Repository
 		diagnosisRepo diagnoses.Repository
 		command       AddPatientDiagnosis
-		expected      error
+		wantErr       error
 	}{
 		{
 			name: "return error when fails getting patient",
@@ -34,7 +34,7 @@ func Test_addPatientDiagnosisHandler_Handle(t *testing.T) {
 			}(),
 			diagnosisRepo: &diagnoses.MockRepository{},
 			command:       command,
-			expected:      ErrGettingPatient,
+			wantErr:       ErrGettingPatient,
 		},
 		{
 			name: "return error when there is no patient for that ID",
@@ -45,7 +45,7 @@ func Test_addPatientDiagnosisHandler_Handle(t *testing.T) {
 			}(),
 			diagnosisRepo: &diagnoses.MockRepository{},
 			command:       command,
-			expected:      ErrPatientNotFound,
+			wantErr:       ErrPatientNotFound,
 		},
 		{
 			name: "return error when the patient cant be updated",
@@ -58,7 +58,7 @@ func Test_addPatientDiagnosisHandler_Handle(t *testing.T) {
 			}(),
 			diagnosisRepo: &diagnoses.MockRepository{},
 			command:       command,
-			expected:      ErrUpdatingPatient,
+			wantErr:       ErrUpdatingPatient,
 		},
 		{
 			name: "return error when the patient cant be updated",
@@ -74,8 +74,8 @@ func Test_addPatientDiagnosisHandler_Handle(t *testing.T) {
 				mockRepo.On("AddDiagnosis", mock.Anything).Return(errors.New("add error"))
 				return mockRepo
 			}(),
-			command:  command,
-			expected: ErrAddingDiagnosis,
+			command: command,
+			wantErr: ErrAddingDiagnosis,
 		},
 		{
 			name: "add patient diagnosis without error",
@@ -91,8 +91,8 @@ func Test_addPatientDiagnosisHandler_Handle(t *testing.T) {
 				mockRepo.On("AddDiagnosis", mock.Anything).Return(nil)
 				return mockRepo
 			}(),
-			command:  command,
-			expected: nil,
+			command: command,
+			wantErr: nil,
 		},
 	}
 	for _, tt := range tests {
@@ -101,8 +101,8 @@ func Test_addPatientDiagnosisHandler_Handle(t *testing.T) {
 				patientRepo:   tt.patientRepo,
 				diagnosisRepo: tt.diagnosisRepo,
 			}
-			if err := h.Handle(tt.command); !errors.Is(err, tt.expected) {
-				t.Errorf("Handle() error = %v, wantErr %v", err, tt.expected)
+			if err := h.Handle(tt.command); !errors.Is(err, tt.wantErr) {
+				t.Errorf("Handle() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

@@ -33,8 +33,9 @@ func NewServer(services app.Services) *Server {
 
 func (s *Server) addHTTPRoutes() {
 	handler := diagnoses.NewHandler(s.appServices.DiagnosisServices)
-	s.router.Route("/patient/{"+diagnoses.PatientIDURLParam+"}", func(r chi.Router) {
-		r.Post("/diagnoses", handler.AddDiagnosis)
+	s.router.Route("/patient", func(r chi.Router) {
+		r.Get("/diagnoses", handler.GetDiagnoses)
+		r.Post("/{"+diagnoses.PatientIDURLParam+"}/diagnoses", handler.AddDiagnosis)
 	})
 }
 
