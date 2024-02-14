@@ -72,5 +72,6 @@ func (h *addPatientDiagnosisHandler) Handle(command AddPatientDiagnosis) error {
 		return ErrAddingDiagnosis
 	}
 
+	slog.Info("patient diagnosis successfully added", "newDiagnosis", newDiagnosis)
 	return nil
 }
