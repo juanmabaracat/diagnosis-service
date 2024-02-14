@@ -19,7 +19,7 @@ var (
 type AddPatientDiagnosis struct {
 	PatientID    uuid.UUID
 	Diagnosis    string
-	Prescription string
+	Prescription *string
 }
 
 type AddPatientDiagnosisHandler interface {
@@ -55,7 +55,7 @@ func (h *addPatientDiagnosisHandler) Handle(command AddPatientDiagnosis) error {
 		Description:  command.Diagnosis,
 		PatientID:    patient.ID,
 		CreatedAt:    time.Now(),
-		Prescription: &command.Prescription,
+		Prescription: command.Prescription,
 	}
 
 	patient.Diagnostics = append(patient.Diagnostics, &newDiagnosis)

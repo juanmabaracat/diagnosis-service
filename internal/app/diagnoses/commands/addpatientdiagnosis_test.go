@@ -15,7 +15,7 @@ func Test_addPatientDiagnosisHandler_Handle(t *testing.T) {
 	command := AddPatientDiagnosis{
 		PatientID:    patientID,
 		Diagnosis:    "test diagnosis",
-		Prescription: "test prescription",
+		Prescription: nil,
 	}
 
 	tests := []struct {
