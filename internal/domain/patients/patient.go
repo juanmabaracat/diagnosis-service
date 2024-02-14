@@ -1,8 +1,8 @@
-package patient
+package patients
 
 import (
 	"github.com/google/uuid"
-	"github.com/juanmabaracat/diagnosis-service/internal/domain/diagnosis"
+	"github.com/juanmabaracat/diagnosis-service/internal/domain/diagnoses"
 )
 
 type Patient struct {
@@ -12,5 +12,5 @@ type Patient struct {
 	Address     string
 	Phone       string
 	Email       string
-	diagnostics []*diagnosis.Diagnosis
+	Diagnostics []*diagnoses.Diagnosis
 }
