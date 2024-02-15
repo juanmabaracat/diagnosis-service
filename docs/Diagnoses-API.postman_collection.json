@@ -1,0 +1,68 @@
+{
+	"info": {
+		"_postman_id": "93f3e64c-dba1-45ed-a132-df8fc5e54d0b",
+		"name": "Diagnoses-API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1026391"
+	},
+	"item": [
+		{
+			"name": "Get Patient Diagnoses",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/patient/diagnoses?patientName=John Doe",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"patient",
+						"diagnoses"
+					],
+					"query": [
+						{
+							"key": "patientName",
+							"value": "John Doe"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Patient Diagnosis",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"diagnosis\": \"ankle twist grade 1\",\n    \"prescription\": \"ibuprofen 1g each 8hs for 1 week\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/v1/patient/11111111-1111-1111-1111-111111111111/diagnoses",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"patient",
+						"11111111-1111-1111-1111-111111111111",
+						"diagnoses"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
