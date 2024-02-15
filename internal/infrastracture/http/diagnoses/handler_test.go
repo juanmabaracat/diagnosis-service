@@ -13,7 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 )
 
@@ -24,7 +23,7 @@ func TestHandler_AddDiagnosis(t *testing.T) {
 		body       interface{}
 		PatientID  string
 		wantStatus int
-		wantMsg    string
+		wantErr    *HTTPError
 	}{
 		{
 			name:    "return bad request on invalid patient id",
@@ -35,7 +34,10 @@ func TestHandler_AddDiagnosis(t *testing.T) {
 			},
 			PatientID:  "",
 			wantStatus: 400,
-			wantMsg:    errInvalidID.Error(),
+			wantErr: &HTTPError{
+				Code:    400,
+				Message: errInvalidID.Error(),
+			},
 		},
 		{
 			name:    "return bad request on invalid diagnosis",
@@ -46,7 +48,10 @@ func TestHandler_AddDiagnosis(t *testing.T) {
 			},
 			PatientID:  "11111111-1111-1111-1111-111111111111",
 			wantStatus: 400,
-			wantMsg:    errInvalidDiagnosis.Error(),
+			wantErr: &HTTPError{
+				Code:    400,
+				Message: errInvalidDiagnosis.Error(),
+			},
 		},
 		{
 			name: "return not found when the patient ID doesn't exists",
@@ -65,7 +70,10 @@ func TestHandler_AddDiagnosis(t *testing.T) {
 			},
 			PatientID:  "11111111-1111-1111-1111-111111111111",
 			wantStatus: 404,
-			wantMsg:    errPatientNotFound.Error(),
+			wantErr: &HTTPError{
+				Code:    404,
+				Message: errPatientNotFound.Error(),
+			},
 		},
 		{
 			name: "return server error when there is a error adding the diagnosis",
@@ -84,7 +92,10 @@ func TestHandler_AddDiagnosis(t *testing.T) {
 			},
 			PatientID:  "11111111-1111-1111-1111-111111111111",
 			wantStatus: 500,
-			wantMsg:    errProcessingRequest.Error(),
+			wantErr: &HTTPError{
+				Code:    500,
+				Message: errProcessingRequest.Error(),
+			},
 		},
 		{
 			name: "create the diagnosis without error",
@@ -103,7 +114,7 @@ func TestHandler_AddDiagnosis(t *testing.T) {
 			},
 			PatientID:  "11111111-1111-1111-1111-111111111111",
 			wantStatus: 201,
-			wantMsg:    "",
+			wantErr:    nil,
 		},
 	}
 
@@ -118,12 +129,15 @@ func TestHandler_AddDiagnosis(t *testing.T) {
 			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rCtx))
 			response := httptest.NewRecorder()
 			h.AddDiagnosis(response, r)
-
 			assert.Equal(t, tt.wantStatus, response.Code)
-			assert.Equal(t, tt.wantMsg, strings.TrimRight(response.Body.String(), "\n"))
+			if tt.wantErr != nil {
+				respErr := HTTPError{}
+				err := json.NewDecoder(response.Body).Decode(&respErr)
+				assert.Nil(t, err)
+				assert.Equal(t, *tt.wantErr, respErr)
+			}
 		})
 	}
-
 }
 
 func TestHandler_GetDiagnoses(t *testing.T) {

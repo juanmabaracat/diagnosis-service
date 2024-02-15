@@ -47,19 +47,19 @@ func (h *Handler) AddDiagnosis(writer http.ResponseWriter, request *http.Request
 	patientIDParam := chi.URLParam(request, PatientIDURLParam)
 	patientID, parseErr := uuid.Parse(patientIDParam)
 	if parseErr != nil {
-		http.Error(writer, errInvalidID.Error(), http.StatusBadRequest)
+		writeError(writer, http.StatusBadRequest, errInvalidID)
 		return
 	}
 
 	decodeErr := json.NewDecoder(request.Body).Decode(&addDiagnosisRequest)
 	if decodeErr != nil {
-		http.Error(writer, decodeErr.Error(), http.StatusBadRequest)
+		writeError(writer, http.StatusBadRequest, decodeErr)
 		return
 	}
 
 	addDiagnosisRequest.Diagnosis = strings.TrimSpace(addDiagnosisRequest.Diagnosis)
 	if addDiagnosisRequest.Diagnosis == "" {
-		http.Error(writer, errInvalidDiagnosis.Error(), http.StatusBadRequest)
+		writeError(writer, http.StatusBadRequest, errInvalidDiagnosis)
 		return
 	}
 
@@ -72,10 +72,10 @@ func (h *Handler) AddDiagnosis(writer http.ResponseWriter, request *http.Request
 	if err != nil {
 		slog.Error("error handling request for adding diagnosis", "error", err)
 		if errors.Is(err, commands.ErrPatientNotFound) {
-			http.Error(writer, errPatientNotFound.Error(), http.StatusNotFound)
+			writeError(writer, http.StatusNotFound, errPatientNotFound)
 			return
 		}
-		http.Error(writer, errProcessingRequest.Error(), http.StatusInternalServerError)
+		writeError(writer, http.StatusInternalServerError, errProcessingRequest)
 		return
 	}
 
@@ -92,7 +92,7 @@ func (h *Handler) GetDiagnoses(writer http.ResponseWriter, request *http.Request
 	patientName := request.URL.Query().Get(PatientNameQueryParam)
 	patientName = strings.TrimSpace(patientName)
 	if patientName == "" {
-		http.Error(writer, errInvalidPatientName.Error(), http.StatusBadRequest)
+		writeError(writer, http.StatusBadRequest, errInvalidPatientName)
 		return
 	}
 
@@ -100,11 +100,12 @@ func (h *Handler) GetDiagnoses(writer http.ResponseWriter, request *http.Request
 	if err != nil {
 		if errors.Is(err, commands.ErrPatientNotFound) {
 			slog.Info("patient not found", "patientName", patientName)
-			http.Error(writer, errPatientNotFound.Error(), http.StatusNotFound)
+			writeError(writer, http.StatusNotFound, errPatientNotFound)
 			return
 		}
+
 		slog.Error("error getting diagnoses", "err", err)
-		http.Error(writer, errProcessingRequest.Error(), http.StatusInternalServerError)
+		writeError(writer, http.StatusInternalServerError, errProcessingRequest)
 		return
 	}
 
@@ -114,10 +115,29 @@ func (h *Handler) GetDiagnoses(writer http.ResponseWriter, request *http.Request
 	})
 	if encodeErr != nil {
 		slog.Error("error encoding get diagnoses response", "encodeErr", encodeErr)
-		http.Error(writer, errProcessingRequest.Error(), http.StatusInternalServerError)
+		writeError(writer, http.StatusInternalServerError, errProcessingRequest)
 		return
 	}
 
 	writer.WriteHeader(http.StatusOK)
 	return
+}
+
+func writeError(writer http.ResponseWriter, code int, err error) {
+	writer.WriteHeader(code)
+	httpErr := HTTPError{
+		Code:    code,
+		Message: err.Error(),
+	}
+	errEncode := json.NewEncoder(writer).Encode(httpErr)
+	if errEncode != nil {
+		slog.Error("error encoding http error", "err", errEncode)
+		return
+	}
+}
+
+// HTTP HTTPError
+type HTTPError struct {
+	Code    int    `json:"code" example:"400"`
+	Message string `json:"message" example:"status bad request"`
 }
