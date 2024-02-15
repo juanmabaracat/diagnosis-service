@@ -1,0 +1,120 @@
+basePath: /api/v1
+definitions:
+  diagnoses.AddDiagnosisRequest:
+    properties:
+      diagnosis:
+        type: string
+      prescription:
+        type: string
+    type: object
+  diagnoses.Diagnosis:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      patientID:
+        type: string
+      prescription:
+        type: string
+    type: object
+  diagnoses.GetDiagnosesResponse:
+    properties:
+      patient_diagnoses:
+        items:
+          $ref: '#/definitions/diagnoses.Diagnosis'
+        type: array
+      patient_name:
+        type: string
+    type: object
+  diagnoses.HTTPError:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: status bad request
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is API service to handle patient diagnoses
+  title: Patient Diagnoses API
+  version: 1.0.0
+paths:
+  /patient/{patientID}/diagnoses:
+    post:
+      consumes:
+      - application/json
+      description: Add patient diagnosis
+      parameters:
+      - description: patient ID
+        in: path
+        name: patientID
+        required: true
+        type: string
+      - description: add diagnosis
+        in: body
+        name: diagnosis
+        required: true
+        schema:
+          $ref: '#/definitions/diagnoses.AddDiagnosisRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/diagnoses.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/diagnoses.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/diagnoses.HTTPError'
+      summary: Add patient diagnosis
+      tags:
+      - diagnosis
+  /patient/diagnoses:
+    get:
+      consumes:
+      - application/json
+      description: Get patient diagnoses
+      parameters:
+      - description: diagnoses search by patient name
+        in: query
+        name: patientName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/diagnoses.GetDiagnosesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/diagnoses.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/diagnoses.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/diagnoses.HTTPError'
+      summary: Get patient diagnoses
+      tags:
+      - diagnosis
+swagger: "2.0"

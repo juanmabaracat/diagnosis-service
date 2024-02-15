@@ -3,8 +3,10 @@ package http
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	_ "github.com/juanmabaracat/diagnosis-service/docs"
 	"github.com/juanmabaracat/diagnosis-service/internal/app"
 	"github.com/juanmabaracat/diagnosis-service/internal/infrastracture/http/diagnoses"
+	"github.com/swaggo/http-swagger/v2"
 	"log"
 	"log/slog"
 	"net/http"
@@ -33,9 +35,10 @@ func NewServer(services app.Services) *Server {
 
 func (s *Server) addHTTPRoutes() {
 	handler := diagnoses.NewHandler(s.appServices.DiagnosisServices)
-	s.router.Route("/patient", func(r chi.Router) {
-		r.Get("/diagnoses", handler.GetDiagnoses)
-		r.Post("/{"+diagnoses.PatientIDURLParam+"}/diagnoses", handler.AddDiagnosis)
+	s.router.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8080/swagger/doc.json")))
+	s.router.Route("/api/v1", func(r chi.Router) {
+		r.Get("/patient/diagnoses", handler.GetDiagnoses)
+		r.Post("/patient/{"+diagnoses.PatientIDURLParam+"}/diagnoses", handler.AddDiagnosis)
 	})
 }
 

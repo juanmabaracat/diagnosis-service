@@ -1,0 +1,182 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is API service to handle patient diagnoses",
+        "title": "Patient Diagnoses API",
+        "contact": {},
+        "version": "1.0.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/patient/diagnoses": {
+            "get": {
+                "description": "Get patient diagnoses",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "diagnosis"
+                ],
+                "summary": "Get patient diagnoses",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "diagnoses search by patient name",
+                        "name": "patientName",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/diagnoses.GetDiagnosesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/diagnoses.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/diagnoses.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/diagnoses.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/patient/{patientID}/diagnoses": {
+            "post": {
+                "description": "Add patient diagnosis",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "diagnosis"
+                ],
+                "summary": "Add patient diagnosis",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "patient ID",
+                        "name": "patientID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "add diagnosis",
+                        "name": "diagnosis",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/diagnoses.AddDiagnosisRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/diagnoses.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/diagnoses.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/diagnoses.HTTPError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "diagnoses.AddDiagnosisRequest": {
+            "type": "object",
+            "properties": {
+                "diagnosis": {
+                    "type": "string"
+                },
+                "prescription": {
+                    "type": "string"
+                }
+            }
+        },
+        "diagnoses.Diagnosis": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "patientID": {
+                    "type": "string"
+                },
+                "prescription": {
+                    "type": "string"
+                }
+            }
+        },
+        "diagnoses.GetDiagnosesResponse": {
+            "type": "object",
+            "properties": {
+                "patient_diagnoses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/diagnoses.Diagnosis"
+                    }
+                },
+                "patient_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "diagnoses.HTTPError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "message": {
+                    "type": "string",
+                    "example": "status bad request"
+                }
+            }
+        }
+    }
+}

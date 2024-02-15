@@ -42,6 +42,20 @@ type AddDiagnosisRequest struct {
 	Prescription *string `json:"prescription"`
 }
 
+// AddDiagnosis godoc
+//
+//	@Summary		Add patient diagnosis
+//	@Description	Add patient diagnosis
+//	@Tags			diagnosis
+//	@Accept			json
+//	@Produce		json
+//	@Param			patientID			path		string		true	"patient ID"
+//	@Param			diagnosis body		AddDiagnosisRequest		true	"add diagnosis"
+//	@Success		201	{string}		status created
+//	@Failure		400	{object}		HTTPError
+//	@Failure		404	{object}		HTTPError
+//	@Failure		500	{object}		HTTPError
+//	@Router			/patient/{patientID}/diagnoses [post]
 func (h *Handler) AddDiagnosis(writer http.ResponseWriter, request *http.Request) {
 	addDiagnosisRequest := AddDiagnosisRequest{}
 	patientIDParam := chi.URLParam(request, PatientIDURLParam)
@@ -88,6 +102,19 @@ type GetDiagnosesResponse struct {
 	Diagnoses   []*diagnoses.Diagnosis `json:"patient_diagnoses"`
 }
 
+// GetDiagnoses godoc
+//
+//	@Summary		Get patient diagnoses
+//	@Description	Get patient diagnoses
+//	@Tags			diagnosis
+//	@Accept			json
+//	@Produce		json
+//	@Param			patientName				query					string	true	"diagnoses search by patient name"
+//	@Success		200	{object}			GetDiagnosesResponse
+//	@Failure		400	{object}			HTTPError
+//	@Failure		404	{object}			HTTPError
+//	@Failure		500	{object}			HTTPError
+//	@Router			/patient/diagnoses 		[get]
 func (h *Handler) GetDiagnoses(writer http.ResponseWriter, request *http.Request) {
 	patientName := request.URL.Query().Get(PatientNameQueryParam)
 	patientName = strings.TrimSpace(patientName)
